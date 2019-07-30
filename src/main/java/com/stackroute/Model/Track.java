@@ -1,36 +1,30 @@
 package com.stackroute.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.*;
 
 @Entity
+@Table(name = "Track")
+@Data
+@NoArgsConstructor
+
+@Builder
+@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Track {
-
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int trackId;
-    private String trackName;
-    private String comments;
-    private int rating;
-
-    //default constructor
-    public Track() {
-    }
-
-
-    //constructor with parameters
-    public Track(int trackId, String trackName, String comments, int rating) {
+    public Track(int trackId, String trackName, String comments, String rating) {
         this.trackId = trackId;
         this.trackName = trackName;
         this.comments = comments;
         this.rating = rating;
     }
 
-
-    //getter and setter methods
     public int getTrackId() {
         return trackId;
     }
@@ -55,22 +49,16 @@ public class Track {
         this.comments = comments;
     }
 
-    public int getRating() {
+    public String getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(String rating) {
         this.rating = rating;
     }
 
-    //overring the toString() method
-    @Override
-    public String toString() {
-        return "Track{" +
-                "trackId=" + trackId +
-                ", trackName='" + trackName + '\'' +
-                ", comments='" + comments + '\'' +
-                ", rating=" + rating +
-                '}';
-    }
+    private int trackId;
+private String trackName;
+private String comments;
+private String rating;
 }

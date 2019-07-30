@@ -5,6 +5,7 @@ import com.stackroute.Exception.TrackNotFoundException;
 import com.stackroute.Model.Track;
 import com.stackroute.Repository.MuzixRepository;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -25,11 +26,15 @@ public class MuzixServiceImpl implements MuzixService {
     MuzixRepository muzixRepository;
 
     @Autowired
-    //Constructor for MuzixServiceImpl
-    public MuzixServiceImpl() {
-
-
+    public MuzixServiceImpl(MuzixRepository muzixRepository) {
+        this.muzixRepository = muzixRepository;
     }
+
+    @Autowired
+    public MuzixServiceImpl() {
+    }
+
+
 
     @Override
     public Track saveTrack(Track track) throws TrackAlreadyExistsException {
@@ -63,13 +68,28 @@ public class MuzixServiceImpl implements MuzixService {
 
     }
 
-    @Override
-    public void deleteTrack(@PathVariable("id") int trackId) {
 
-        muzixRepository.deleteById(trackId);
-//        return deleteTrack(trackId);
+    public boolean deleteTrack(int id) throws TrackNotFoundException
+    {
+        Optional<Track> track1 = muzixRepository.findById(id);
+
+        if(!track1.isPresent())
+        {
+            throw new TrackNotFoundException("Track Not Found");
+        }
+
+        try {
+
+            muzixRepository.delete(track1.get());
+
+            return true;
+
+        }
+        catch (Exception exception)
+        {
+            return false;
+        }
     }
-
 
     @Override
     public List<Track> trackByName(String name) {
@@ -77,66 +97,17 @@ public class MuzixServiceImpl implements MuzixService {
         return trackList;
     }
 
-    public static String GET_URL = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=e2b3561d25a2ac7d5836db843cc277ea&artist=Cher&album=Believe&format=json";
-
-    public String getAllTracks() throws Exception {
-        URL obj = new URL(GET_URL);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-        int responseCode = con.getResponseCode();
-        System.out.println("GET Response Code :: " + responseCode);
-        if (responseCode == HttpURLConnection.HTTP_OK) { // success
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            return response.toString();
-        } else {
-            return "GET request not worked";
-
-        }
 
 
+
+    @Override
+    public List<Track> getAllTracks() {
+
+        return muzixRepository.findAll();
+    }
     }
 
 
-//    JSONObject json;
-//
-//    void setup() {
-//
-//        int Values[];
-//        int size;
-//
-//        json = loadJSONObject("data.json");
-//
-//        JSONArray values = null;
-//        try {
-//            values = json.getJSONArray("animals");
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for (int i = 0; i < values.size(); i++) {
-//
-//            JSONObject animal = values.getJSONObject(i);
-//
-//            int id = animal.getInt("id");
-//            String species = animal.getString("species");
-//            String name = animal.getString("name");
-//
-//            println(id + ", " + species + ", " + name);
-//        }
-//    }
-//
-//    private JSONObject loadJSONObject(String s) {
-//    }
-//
 
-}
+
+
