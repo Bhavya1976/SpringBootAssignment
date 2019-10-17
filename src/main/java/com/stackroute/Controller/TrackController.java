@@ -24,16 +24,17 @@ public class TrackController {
     public TrackController (MuzixService muzixService){
         this.muzixService = muzixService;
     }
-
+//postmapping for the track 
     @PostMapping("track")
     public ResponseEntity<?> saveTrack (@RequestBody Track track){
         ResponseEntity responseEntity;
         try{
             muzixService.saveTrack(track);
-            responseEntity = new ResponseEntity<String >("Successfully created", HttpStatus.CREATED);
+            responseEntity = new ResponseEntity<Track>(track, HttpStatus.CREATED);// If the track will save this line of code get executed and prints the message as Successfully added
         }
         catch (TrackAlreadyExistsException ex){
-            responseEntity = new ResponseEntity<String>(ex.getMessage(),HttpStatus.CONFLICT);
+            responseEntity = new ResponseEntity<String>(ex.getMessage(),HttpStatus.CONFLICT);// if the track is not saved, conflict error will be displayed.
+            
         }
         return  responseEntity;
     }
@@ -48,13 +49,15 @@ public class TrackController {
     }
 
     @PutMapping("/track/{id}")
-    public ResponseEntity<?> updateTrack(@RequestBody Track track,@PathVariable("id") int id) {
+    public ResponseEntity<?> updateTrack(@RequestBody Track track,@PathVariable("id") int trackId) {
 
         try {
-            muzixService.updateTrack(track, id);
-            return new ResponseEntity<String>("updated successfully",HttpStatus.CREATED);
+            //Update the track by using the id 
+            muzixService.updateTrack(track, trackId);
+            return new ResponseEntity<Track>(track,HttpStatus.CREATED);
         }
         catch (Exception e){
+            // if the update is not done then the conflict message is printed.
             return new ResponseEntity<String>(e.getMessage(),HttpStatus.CONFLICT);
         }
 
@@ -62,22 +65,27 @@ public class TrackController {
     }
 
     @DeleteMapping("/track/{id}")
-    public void deleteTrack(@PathVariable int trackId) {
+    public ResponseEntity<?> deleteTrack(@PathVariable int trackId) {
         try {
+            //deletes the track that has been created by using the track id
             muzixService.deleteTrack(trackId);
+            return new ResponseEntity<Track>(track,HttpStatus.DELETED);
+                                             
         } catch (TrackNotFoundException e) {
-            e.printStackTrace();
+            //if the deletion of track is not performed, it returns the conflict message.
+           return new ResponseEntity<String>(e.getMessage(),HttpStatus.CONFLICT);
         }
     }
 
     @GetMapping("/track/{name}")
     public ResponseEntity<?> trackByName(@PathVariable String name){
+        // this tracks the music track by the track name.
 
         return new ResponseEntity<List<Track>>(muzixService.trackByName(name),HttpStatus.OK);
 
     }
 
-
+           //external api for the music tracks
     public static String GET_URL = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=e2b3561d25a2ac7d5836db843cc277ea&artist=Cher&album=Believe&format=json";
 
     public String getAllTrack() throws Exception {
